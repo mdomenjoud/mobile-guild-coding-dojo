@@ -3,7 +3,7 @@ import type { JestConfigWithTsJest } from 'ts-jest';
 
 const jestConfig: JestConfigWithTsJest = {
     ...tsjPreset,
-    preset: '@testing-library/react-native',
+    preset: 'ts-jest',
     transform: {
         '^.+\\.jsx$': 'babel-jest',
         '^.+\\.tsx$': [
