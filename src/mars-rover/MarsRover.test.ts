@@ -2,7 +2,7 @@
 // Can two rovers be in the same spot ? What should we do about it ?
 // NO It should be impossible to have more rovers than spot in the grid
 
-import { moveRovers } from "./mars-rover/Rover";
+import { moveRovers } from "./Rover";
 
 // Test list
 
