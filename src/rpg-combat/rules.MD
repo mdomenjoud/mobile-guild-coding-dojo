@@ -19,3 +19,11 @@
 2. When dealing damage:
     * If the target is 5 or more Levels above the attacker, Damage is reduced by 50%
     * If the target is 5 or more Levels below the attacker, Damage is increased by 50%
+
+
+1. Characters may belong to one or more Factions.
+    * Newly created Characters belong to no Faction.
+2. A Character may Join or Leave one or more Factions.
+3. Players belonging to the same Faction are considered Allies.
+    * Allies cannot Deal Damage to one another.
+    * Allies can Heal one another and non-allies cannot.

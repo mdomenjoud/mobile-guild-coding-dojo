@@ -1,18 +1,42 @@
+export type CharacterProps = {
+    health: number;
+    level: number;
+    factions: string[];
+};
+
 export class Character {
     public static readonly initialLevel: number = 1;
     public static readonly baseHeal: number = 50;
     private baseDamage = 75;
-    public health: number;
 
-    constructor(health?: number, public level:number = Character.initialLevel) {
-        this.health = health ?? this.maxHealth;
+    public level: number;
+    public health: number;
+    public factions: Set<string>;
+
+    constructor(props: Partial<CharacterProps> = {}) {
+        this.level = props.level ?? Character.initialLevel;
+        this.health = props.health ?? this.maxHealth;
+        this.factions = new Set(props.factions);
     }
 
     attack(victim: Character) {
         if (victim === this) {
             return;
         }
-        victim.receiveDamage(this.baseDamage);
+
+        const victimDamage = Math.round(
+            this.baseDamage * this.attackFactor(this.level, victim.level),
+        );
+        victim.receiveDamage(victimDamage);
+    }
+
+    private attackFactor(attackedLevel: number, victimeLevel: number) {
+        if (victimeLevel >= attackedLevel + 5) {
+            return 0.5;
+        } else if (victimeLevel <= attackedLevel - 5) {
+            return 1.5;
+        }
+        return 1;
     }
 
     receiveDamage(damages: number) {
@@ -24,6 +48,18 @@ export class Character {
             return;
         }
         this.health = Math.min(this.health + Character.baseHeal, this.maxHealth);
+    }
+
+    joins(faction: string) {
+        this.factions.add(faction);
+    }
+
+    leaves(faction: string) {
+        this.factions.delete(faction);
+    }
+
+    belongsTo(faction: string): boolean {
+        return this.factions.has(faction);
     }
 
     private get maxHealth() {
