@@ -1,3 +1,5 @@
+import MagicalObject from "./MagicalObject";
+
 export type CharacterProps = {
     health: number;
     level: number;
@@ -12,6 +14,7 @@ export class Character {
     public level: number;
     public health: number;
     public factions: Set<string>;
+    public magicalObject?: MagicalObject;
 
     constructor(props: Partial<CharacterProps> = {}) {
         this.level = props.level ?? Character.initialLevel;
@@ -24,10 +27,18 @@ export class Character {
             return;
         }
 
+        if (this.isAlliedWith(victim)) {
+            return;
+        }
+
         const victimDamage = Math.round(
             this.baseDamage * this.attackFactor(this.level, victim.level),
         );
         victim.receiveDamage(victimDamage);
+    }
+
+    private isAlliedWith(character: Character): boolean {
+        return Array.from(this.factions).some((faction) => character.belongsTo(faction));
     }
 
     private attackFactor(attackedLevel: number, victimeLevel: number) {
@@ -43,11 +54,27 @@ export class Character {
         this.health = Math.max(this.health - damages, 0);
     }
 
-    heal() {
+    heal(ally?: Character) {
         if (this.isDead) {
             return;
         }
-        this.health = Math.min(this.health + Character.baseHeal, this.maxHealth);
+
+        if(ally && !(ally instanceof Character)){
+            return;
+        }
+
+        if((ally && (!this.isAlliedWith(ally) || ally.isDead))){
+            return;
+        }
+
+        const healedCharacter = ally ?? this;
+
+        const healingAmount = this.magicalObject ? this.magicalObject.health : Character.baseHeal;
+        healedCharacter.recoverHealth(healingAmount);
+    }
+
+    private recoverHealth(amount: number) {
+        this.health = Math.min(this.health + amount, this.maxHealth);
     }
 
     joins(faction: string) {
@@ -60,6 +87,10 @@ export class Character {
 
     belongsTo(faction: string): boolean {
         return this.factions.has(faction);
+    }
+
+    equip(magicalObject: MagicalObject){
+        this.magicalObject = magicalObject;
     }
 
     private get maxHealth() {

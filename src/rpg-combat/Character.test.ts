@@ -1,4 +1,5 @@
 import { Character } from './Character';
+import MagicalObject from './MagicalObject';
 
 describe('Character', () => {
     const initialHelthLevel1 = 1000;
@@ -113,6 +114,72 @@ describe('Character', () => {
 
             expect(character.health).toBe(0);
         });
+
+        it('heals an ally', () => {
+            const healer = new Character({ health: 90 });
+            const ally = new Character({ health: 90 });
+
+            healer.joins('elf');
+            ally.joins('elf');
+
+            healer.heal(ally);
+
+            expect(ally.health).toBe(140);
+            expect(healer.health).toBe(90);
+        });
+
+        it('does not heal an ennemy', () => {
+            const healer = new Character({ health: 90 });
+            const ennemy = new Character({ health: 90 });
+
+            healer.heal(ennemy);
+
+            expect(ennemy.health).toBe(90);
+            expect(healer.health).toBe(90);
+        });
+        it('does not heal a dead ally', () => {
+            const healer = new Character({ health: 90 });
+            const ally = new Character({ health: 0 });
+
+            healer.joins('elf');
+            ally.joins('elf');
+
+            healer.heal(ally);
+            expect(ally.health).toBe(0);
+        });
+        it('does not heal over max health', () => {
+            const healer = new Character({ health: 90 });
+            const ally = new Character({ health: 1500, level: 6 });
+
+            healer.joins('elf');
+            ally.joins('elf');
+
+            healer.heal(ally);
+            expect(ally.health).toBe(1500);
+        });
+
+        it('only heal character', () => {
+            const healer = new Character({ health: 90 });
+            const magicalObject = new MagicalObject(3);
+
+            healer.heal(magicalObject as unknown as Character);
+
+            expect(magicalObject.health).toBe(3);
+
+        })
+
+        it('receives heal amount from equipped healing object', () => {
+            //Characters can gain any amount of health from the Object, up to its maximum and theirs
+
+            const healer = new Character({ health: 90 });
+            const magicalObject = new MagicalObject(100); // potion
+
+            healer.equip(magicalObject);
+            healer.heal();
+
+            expect(healer.health).toBe(190);
+        });
+
     });
 
     describe('Join a faction', () => {
@@ -143,6 +210,15 @@ describe('Character', () => {
             character.leaves('elves');
 
             expect(character.belongsTo('elves')).toBe(false);
+        });
+    });
+
+    describe('Equip a magical object', () => {
+        it('is being equiped', () => {
+            const character = new Character();
+            const magicalObject = new MagicalObject(10);
+            character.equip(magicalObject);
+            expect(character.magicalObject).toBe(magicalObject);
         });
     });
 });
